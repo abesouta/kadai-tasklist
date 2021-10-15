@@ -25,6 +25,8 @@
         </table>
     @endif
     
+    {{-- ページネーションのリンク --}}
+    {{ $tasks->links() }}
     
     {!! link_to_route('tasks.create', '新規タスクの投稿', [], ['class' => 'btn btn-primary']) !!}
     
