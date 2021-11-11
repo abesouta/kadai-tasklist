@@ -45,16 +45,12 @@ class TasksController extends Controller
      */
     public function create()
     {
-        $tasks = new Task;
-        
-        // ログインしているならば
-        if (\Auth::check()) {
-            return view('tasks.create', [
-                'tasks' => $tasks
-                ]);
-        } else {
-            return redirect('/');
-        }
+        $task = new Task;
+
+        return view('tasks.create', [
+            'task' => $task,
+        ]);
+        return redirect('/');
     }
 
     /**
@@ -127,20 +123,27 @@ class TasksController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+        
     public function update(Request $request, $id)
     {
-        // バリデーションチェック
-        $this->validate($request, [
-            'status' =>'required|max:10',
-            'content' => 'required|max:191',
+        $this->validate($request,[
+            'status'=>'required|max:10',
+            'content'=>'required|max:191',
         ]);
         
         $task = Task::find($id);
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
-
-        return redirect('/');
+        //ログイン中の人とtaskのuser_idが同じだったら
+        if(\Auth::id() === $task->user_id){
+            $task->status = $request->status;
+            $task->content = $request->content;
+            //更新を保存する
+            $task->save();
+        
+            return redirect('/');
+    
+        }else{
+            return redirect('/');
+        }
     }
 
     /**
@@ -149,13 +152,20 @@ class TasksController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    
     public function destroy($id)
     {
         $task = Task::find($id);
+        if(\Auth::id() === $task->user_id){
+             $task->delete();
         
-        if(\Auth::id() === $task->user_id) {
-            $task->delete();
-            return redirect('/');
-        } 
+             return redirect('/');
+        
+        //ログインしていない場合はwelcomへ
+        }else {
+        
+            return redirect('/'); 
+        }   
+       
     }
 }
